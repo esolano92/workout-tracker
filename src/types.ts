@@ -81,6 +81,14 @@ export interface SetEntry {
   weight: string
   value: string
   done: boolean
+  /** When the set was checked off. */
+  doneAt?: number
+  /** Seconds of rest actually taken before this set (from the rest timer starting to it ending or being skipped). */
+  restSec?: number
+  /** Planned rest before this set, in seconds. */
+  restPlanned?: number
+  /** Seconds from the end of that rest until this set was checked off. */
+  workSec?: number
 }
 
 export interface Session {

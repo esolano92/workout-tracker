@@ -69,6 +69,7 @@ interface ChartProps {
   format: (v: number) => string
   axisFormat?: (v: number) => string
   emptyText: string
+  goalLabel?: string
 }
 
 function useScrub(n: number, width: number) {
@@ -103,10 +104,21 @@ function Readout({
   )
 }
 
-export function LineChart({ points, trend, goal, color, format, axisFormat = format, emptyText }: ChartProps) {
+export function LineChart({
+  points,
+  trend,
+  connect,
+  goal,
+  goalLabel = 'goal',
+  color,
+  format,
+  axisFormat = format,
+  emptyText,
+}: ChartProps & { connect?: boolean }) {
   const [ref, width] = useWidth()
   const n = points.length
   const { idx, onMove, onLeave } = useScrub(n, width)
+  const line = trend ?? (connect ? points : undefined)
   const values = [...points, ...(trend ?? [])].map((p) => p.value).filter((v): v is number => v !== undefined)
   if (goal !== undefined) values.push(goal)
   const hasData = points.some((p) => p.value !== undefined)
@@ -115,7 +127,7 @@ export function LineChart({ points, trend, goal, color, format, axisFormat = for
   const innerH = H - PAD.top - PAD.bottom
   const x = (i: number) => PAD.left + (n <= 1 ? innerW / 2 : (i / (n - 1)) * innerW)
   const y = (v: number) => PAD.top + innerH - ((v - lo) / (hi - lo)) * innerH
-  const trendPts = (trend ?? []).map((p, i) => ({ x: x(i), y: p.value === undefined ? undefined : y(p.value) }))
+  const trendPts = (line ?? []).map((p, i) => ({ x: x(i), y: p.value === undefined ? undefined : y(p.value) }))
   const trendLine = linePath(trendPts)
   const firstTrend = trendPts.find((p) => p.y !== undefined)
   const lastTrend = trendPts.findLast((p) => p.y !== undefined)
@@ -161,7 +173,7 @@ export function LineChart({ points, trend, goal, color, format, axisFormat = for
         {goal !== undefined && (
           <g>
             <line className="goal-line" x1={PAD.left} x2={width - PAD.right} y1={y(goal)} y2={y(goal)} />
-            <text className="axis goal-label" x={width - PAD.right} y={y(goal) - 5} textAnchor="end">goal</text>
+            <text className="axis goal-label" x={width - PAD.right} y={y(goal) - 5} textAnchor="end">{goalLabel}</text>
           </g>
         )}
         {idx !== null && (

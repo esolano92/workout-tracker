@@ -415,9 +415,56 @@ details ul { color: var(--muted); font-size: 14px; }
 .card:has(> h3 + .set-row) .set-row { grid-template-columns: minmax(90px, 1.4fr) 1fr 1fr 50px; }
 .card:has(> h3 + .set-row) .set-label { color: var(--text); font-size: 13px; text-align: left; }
 
+.set-timing { grid-column: 1 / -1; margin: -2px 0 2px; font-size: 12px; font-weight: 600; color: var(--muted); text-align: right; }
+.pace-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: 8px; }
+.pace-strip div { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); min-width: 0; }
+.pace-strip strong { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.pace-strip span { font-size: 11px; color: var(--muted); font-weight: 600; }
+.pace-strip.big strong { font-size: 22px; }
+.metric-icon.pace { background: var(--accent-soft); color: var(--accent); }
+.warn-text { color: #fbbf24; }
+.good-text { color: var(--good); }
+
 /* History */
-.history-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; background: none; border: 0; color: inherit; text-align: left; padding: 0; cursor: pointer; }
-.history-body { display: flex; flex-direction: column; gap: 6px; font-size: 14px; border-top: 1px solid var(--line); padding-top: 12px; }
+.empty { padding: 4px 4px 0; line-height: 1.5; }
+.search { border-radius: 14px; }
+.history-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; background: none; border: 0; color: inherit; text-align: left; padding: 0; cursor: pointer; width: 100%; }
+.history-head > div { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.history-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.history-chips .tag { background: var(--surface-3); color: var(--text); font-weight: 650; }
+.chevron { color: var(--muted); transform: rotate(90deg); transition: transform 0.2s; flex: none; margin-top: 2px; }
+.chevron.open { transform: rotate(-90deg); }
+.history-body { display: flex; flex-direction: column; gap: 12px; font-size: 14px; border-top: 1px solid var(--line); padding-top: 14px; }
+.history-body > .btn { align-self: flex-start; }
+.ex-history-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.ex-history-head > div { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.ex-history-head .chip { flex: none; }
+
+.table-wrap {
+  overflow-x: auto;
+  margin: 0 -18px;
+  padding: 0 18px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.table-wrap::-webkit-scrollbar { display: none; }
+.log-table { border-collapse: separate; border-spacing: 0; width: 100%; font-size: 14px; font-variant-numeric: tabular-nums; }
+.log-table th, .log-table td { padding: 9px 8px; text-align: center; white-space: nowrap; border-bottom: 1px solid var(--line); }
+.log-table thead th { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; padding-top: 4px; }
+.log-table tbody tr:last-child > * { border-bottom: 0; }
+.log-table td strong { font-weight: 800; font-size: 15px; }
+.log-table td span { color: var(--muted); font-size: 12px; font-weight: 600; margin-left: 2px; }
+.log-table td.best strong { color: var(--accent); }
+.log-table td.empty-cell { color: var(--surface-3); }
+.log-table .sticky { position: sticky; left: 0; z-index: 1; text-align: left; background: var(--surface); padding-left: 0; box-shadow: inset -1px 0 0 var(--line); }
+.log-table .date-cell { font-weight: 700; font-size: 13px; color: var(--text); }
+.log-table .ex-cell { font-weight: 650; font-size: 13px; color: var(--text); white-space: normal; min-width: 110px; max-width: 160px; line-height: 1.3; }
+.log-table .time-cell { color: var(--muted); font-weight: 650; font-size: 13px; }
+.trend-up, .trend-down { font-size: 9px; margin-left: 5px; vertical-align: 1px; }
+.trend-up { color: var(--good); }
+.trend-down { color: #fbbf24; }
+.table-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.best-key { color: var(--accent); font-weight: 700; }
 
 /* Tab bar */
 .tabbar {
@@ -479,6 +526,9 @@ button:focus:not(:focus-visible) { outline: none; }
 .rest-progress { position: absolute; inset: 0 auto 0 0; background: var(--accent-soft); transition: width 0.25s linear; }
 .rest-bar.done .rest-progress { background: rgba(52, 211, 153, 0.18); }
 .rest-content { position: relative; display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; gap: 10px; }
+.rest-content .row { flex-wrap: nowrap; flex: none; }
+.rest-content > div:first-child { min-width: 0; }
+.rest-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .rest-clock { font-size: 28px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
 .rest-label { font-size: 13px; color: var(--muted); }
 
@@ -512,4 +562,32 @@ button:focus:not(:focus-visible) { outline: none; }
   .tiles { grid-template-columns: 1fr 1fr; }
   .tile.steps { grid-column: span 2; order: -1; }
   h1 { font-size: 30px; }
+  .page { padding-left: 12px; padding-right: 12px; }
+  .card { padding: 15px; }
+  .table-wrap { margin: 0 -15px; padding: 0 15px; }
+  .set-row { gap: 6px; grid-template-columns: minmax(22px, auto) 1fr 1fr 44px; }
+  .set-input span { min-width: 0; }
+  .log-fields { grid-template-columns: 1fr; }
+  .log-card .block-head h3 { white-space: nowrap; }
+  .date-stepper { gap: 4px; }
+  .date-stepper span { min-width: 58px; }
+  .log-table th, .log-table td { padding-left: 6px; padding-right: 6px; }
+  .log-table .ex-cell { min-width: 92px; }
+  .steps-summary { gap: 12px; }
+  .big-stat strong { font-size: 32px; }
+}
+
+@media (min-width: 768px) {
+  .page { max-width: 760px; padding-left: 28px; padding-right: 28px; gap: 16px; }
+  .tabbar, .rest-bar { max-width: 520px; }
+  h1 { font-size: 40px; }
+  .hero { padding: 28px; }
+  .hero-title { font-size: 34px; }
+  .tile { min-height: 120px; padding: 18px; }
+  .card { padding: 22px; }
+  .table-wrap { margin: 0 -22px; padding: 0 22px; }
+}
+
+@media (min-width: 1100px) {
+  .page { max-width: 880px; }
 }

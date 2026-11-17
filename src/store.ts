@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import { getProgram, programs } from './programs'
+import { resetSetTiming } from './timer'
 import type { AppState, Baseline, DailyEntry, LogField, Session, SetEntry, Unit } from './types'
 
 const STORAGE_KEY = 'workout-tracker:v1'
@@ -80,6 +81,7 @@ export const actions = {
     if (active && active.programId === programId && active.week === week && active.day === day) {
       return active.id
     }
+    resetSetTiming()
     const dayDef = getProgram(programId).weeks[week].days[day]
     const session: Session = {
       id: crypto.randomUUID(),

@@ -10,20 +10,56 @@ let timer: TimerState | null = null
 const listeners = new Set<() => void>()
 const emit = () => listeners.forEach((l) => l())
 
+/** The most recent rest, kept after the timer is dismissed so the next set can be timed against it. */
+let lastRest: { startedAt: number; endsAt: number; planned: number; stoppedAt?: number } | null = null
+
+/** Longer than this between a rest ending and the next check-off means the set wasn't being timed. */
+const MAX_SET_MS = 10 * 60_000
+
 export const restTimer = {
   start(seconds: number, label: string) {
-    timer = { endsAt: Date.now() + seconds * 1000, total: seconds, label }
+    const now = Date.now()
+    timer = { endsAt: now + seconds * 1000, total: seconds, label }
+    lastRest = { startedAt: now, endsAt: timer.endsAt, planned: seconds }
     emit()
   },
   add(seconds: number) {
     if (!timer) return
     timer = { ...timer, endsAt: timer.endsAt + seconds * 1000, total: timer.total + seconds }
+    if (lastRest) lastRest = { ...lastRest, endsAt: timer.endsAt }
     emit()
   },
   stop() {
+    if (lastRest && !lastRest.stoppedAt) lastRest = { ...lastRest, stoppedAt: Date.now() }
     timer = null
     emit()
   },
+}
+
+/**
+ * Timing for a set checked off now, measured from the end of the last rest, or from the previous
+ * check-off when there was no rest in between. Empty if nothing recent to measure from.
+ */
+export function setTiming(now = Date.now()): { restSec?: number; restPlanned?: number; workSec?: number } {
+  const rest = lastRest
+  lastRest = { startedAt: now, endsAt: now, planned: 0 }
+  if (!rest) return {}
+  const restEnd = Math.min(rest.endsAt, rest.stoppedAt ?? Infinity, now)
+  const work = now - restEnd
+  if (work > MAX_SET_MS) return {}
+  return {
+    ...(rest.planned > 0 && {
+      restSec: Math.round((restEnd - rest.startedAt) / 1000),
+      restPlanned: rest.planned,
+    }),
+    // Checked off while the rest was still running: there's no separate set time to report.
+    workSec: restEnd < now ? Math.round(work / 1000) : undefined,
+  }
+}
+
+/** Forget the last rest, e.g. when a new workout starts. */
+export function resetSetTiming() {
+  lastRest = null
 }
 
 function subscribe(l: () => void) {

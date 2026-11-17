@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react'
 import { dayLabel, formatDuration, formatRest, formatSet, formatTarget, valueUnit, weekLabel } from '../format'
 import { getProgram } from '../programs'
 import { actions, lastPerformance, useAppState } from '../store'
-import { restTimer } from '../timer'
+import { restTimer, setTiming } from '../timer'
 import type { Day, Exercise, LogField, Session, SetEntry, Unit } from '../types'
+import { formatSeconds, sessionTiming } from '../workoutStats'
 import { BlockList, CircuitBanner } from './DayContent'
 import { IntervalTimer } from './IntervalTimer'
 
@@ -42,6 +43,7 @@ export function SessionView({ session, onClose }: { session: Session; onClose: (
         {program.name} · {weekLabel(program.weeks[session.week], session.week)} · {dayLabel(day, session.day)}
       </p>
       <h1>{day.title}</h1>
+      <SessionPace session={session} />
       {day.video && (
         <p><a href={day.video} target="_blank" rel="noreferrer">▶ Watch the demo video</a></p>
       )}
@@ -137,8 +139,16 @@ function SetRow({
   onDone: () => void
 }) {
   const toggle = () => {
-    if (set.done) return onChange({ done: false })
-    onChange({ done: true, weight: set.weight || hint?.weight || '', value: set.value || hint?.value || '' })
+    if (set.done) {
+      return onChange({ done: false, doneAt: undefined, restSec: undefined, restPlanned: undefined, workSec: undefined })
+    }
+    onChange({
+      done: true,
+      weight: set.weight || hint?.weight || '',
+      value: set.value || hint?.value || '',
+      doneAt: Date.now(),
+      ...setTiming(),
+    })
     onDone()
   }
   return (
@@ -163,6 +173,31 @@ function SetRow({
         <span>{valueUnit[exercise.measure]}</span>
       </label>
       <button className="set-check" onClick={toggle} aria-label="Mark set done">✓</button>
+      {set.done && <SetTimingLine set={set} />}
+    </div>
+  )
+}
+
+function SetTimingLine({ set }: { set: SetEntry }) {
+  const parts: string[] = []
+  if (set.workSec !== undefined) parts.push(`Set took ${formatSeconds(set.workSec)}`)
+  if (set.restSec !== undefined && set.restPlanned) {
+    const over = set.restSec - set.restPlanned
+    const note = Math.abs(over) < 5 ? 'on plan' : over > 0 ? `${formatSeconds(over)} over` : `${formatSeconds(-over)} short`
+    parts.push(`rested ${formatSeconds(set.restSec)} (${note})`)
+  }
+  if (!parts.length) return null
+  return <p className="set-timing">{parts.join(' · ')}</p>
+}
+
+function SessionPace({ session }: { session: Session }) {
+  const t = sessionTiming(session)
+  if (!t.timedSets && t.avgRest === undefined) return null
+  return (
+    <div className="pace-strip">
+      <div><strong>{t.avgSet !== undefined ? formatSeconds(t.avgSet) : '—'}</strong><span>avg set</span></div>
+      <div><strong>{t.avgRest !== undefined ? formatSeconds(t.avgRest) : '—'}</strong><span>avg rest</span></div>
+      <div><strong>{t.avgPlanned !== undefined ? formatSeconds(t.avgPlanned) : '—'}</strong><span>planned rest</span></div>
     </div>
   )
 }
