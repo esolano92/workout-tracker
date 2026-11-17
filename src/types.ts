@@ -109,6 +109,13 @@ export interface Baseline {
 
 export type Unit = 'lb' | 'kg'
 
+export type Tab = 'today' | 'program' | 'track' | 'history' | 'settings'
+
+export interface DailyEntry {
+  weight?: number
+  steps?: number
+}
+
 export interface AppState {
   version: 1
   activeProgramId: string
@@ -116,5 +123,8 @@ export interface AppState {
   sessions: Session[]
   activeSessionId?: string
   baseline: Baseline
+  /** Keyed by local date, "YYYY-MM-DD". */
+  daily: Record<string, DailyEntry>
+  goals: { steps?: number; weight?: number }
   settings: { unit: Unit }
 }

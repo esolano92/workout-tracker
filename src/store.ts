@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import { getProgram, programs } from './programs'
-import type { AppState, Baseline, LogField, Session, SetEntry, Unit } from './types'
+import type { AppState, Baseline, DailyEntry, LogField, Session, SetEntry, Unit } from './types'
 
 const STORAGE_KEY = 'workout-tracker:v1'
 
@@ -11,6 +11,8 @@ function defaultState(): AppState {
     progress: {},
     sessions: [],
     baseline: {},
+    daily: {},
+    goals: { steps: 10000 },
     settings: { unit: 'lb' },
   }
 }
@@ -171,6 +173,21 @@ export const actions = {
 
   setBaseline(baseline: Baseline) {
     update((s) => ({ ...s, baseline }))
+  },
+
+  /** Pass `undefined` for a field to clear it. Days with nothing left are removed. */
+  setDaily(date: string, patch: Partial<DailyEntry>) {
+    update((s) => {
+      const entry = { ...s.daily[date], ...patch }
+      const daily = { ...s.daily }
+      if (entry.weight === undefined && entry.steps === undefined) delete daily[date]
+      else daily[date] = entry
+      return { ...s, daily }
+    })
+  },
+
+  setGoals(patch: Partial<AppState['goals']>) {
+    update((s) => ({ ...s, goals: { ...s.goals, ...patch } }))
   },
 
   discardSession(sessionId: string) {
