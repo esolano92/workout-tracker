@@ -9,6 +9,10 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.png', 'apple-touch-icon.png'],
+      workbox: {
+        importScripts: ['push-handler.js'],
+        navigateFallbackDenylist: [/^\/api\//],
+      },
       manifest: {
         name: 'Workout Tracker',
         short_name: 'Workouts',

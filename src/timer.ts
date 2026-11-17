@@ -1,4 +1,5 @@
 import { useEffect, useState, useSyncExternalStore } from 'react'
+import { cancelRestAlert, scheduleRestAlert } from './restAlerts'
 
 interface TimerState {
   endsAt: number
@@ -21,16 +22,19 @@ export const restTimer = {
     const now = Date.now()
     timer = { endsAt: now + seconds * 1000, total: seconds, label }
     lastRest = { startedAt: now, endsAt: timer.endsAt, planned: seconds }
+    scheduleRestAlert(timer.endsAt, label)
     emit()
   },
   add(seconds: number) {
     if (!timer) return
     timer = { ...timer, endsAt: timer.endsAt + seconds * 1000, total: timer.total + seconds }
     if (lastRest) lastRest = { ...lastRest, endsAt: timer.endsAt }
+    scheduleRestAlert(timer.endsAt, timer.label)
     emit()
   },
   stop() {
     if (lastRest && !lastRest.stoppedAt) lastRest = { ...lastRest, stoppedAt: Date.now() }
+    if (timer && timer.endsAt > Date.now()) cancelRestAlert()
     timer = null
     emit()
   },

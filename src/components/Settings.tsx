@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { actions, useAppState } from '../store'
 import { BaselineCard } from './BaselineCard'
+import { RestAlertsCard } from './RestAlertsCard'
 
 export function Settings() {
   const state = useAppState()
@@ -42,6 +43,8 @@ export function Settings() {
           ))}
         </div>
       </section>
+
+      <RestAlertsCard />
 
       <BaselineCard />
 
